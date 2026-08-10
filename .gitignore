@@ -1,0 +1,38 @@
+## Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+## Data (large / regenerable — not committed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.parquet
+data/processed/*.csv
+!data/processed/.gitkeep
+*.zip
+
+## Models & artifacts
+*.pkl
+*.joblib
+models/*.bin
+
+## Notebooks
+.ipynb_checkpoints/
+
+## Env / secrets
+.env
+.env.*
+
+## OS
+.DS_Store
+
+## Node (dashboard)
+dashboard/node_modules/
+dashboard/dist/
+dashboard/build/
+
+## Editors
+.vscode/
+.idea/
