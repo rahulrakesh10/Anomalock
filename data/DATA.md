@@ -44,3 +44,13 @@ subsample should not be quoted as the full dataset's population statistics. Desc
 subsample of the RBA dataset" rather than "the RBA dataset" when precision matters.
 
 See [`notebooks/01_eda.ipynb`](../notebooks/01_eda.ipynb) for full exploratory analysis.
+
+## External reference data
+
+`data/external/cities15000.txt` — [GeoNames](https://www.geonames.org/) cities with population ≥ 15,000
+(~25K rows, CC BY 4.0), committed as-is (8.4MB) since it's small and static. Used by
+[`src/anomalock/features/geo.py`](../src/anomalock/features/geo.py) to resolve the dataset's City/Country
+strings to lat/lon for the login-velocity feature, since the RBA dataset itself has no coordinates. City-name
+matching hits for ~34% of rows in the subsample; the rest fall back to a population-weighted country centroid
+(computed from this same file) — coarse, but sufficient to catch cross-country "impossible travel," which is
+the feature's actual purpose.
