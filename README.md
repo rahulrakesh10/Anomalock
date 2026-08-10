@@ -7,8 +7,25 @@ verification instead of either annoying every user or missing slow, low-volume a
 
 ## Status
 
-**Phase 1 (data) — in progress.** See [`data/DATA.md`](data/DATA.md) for the dataset writeup and
-[`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) for exploratory analysis.
+**Phase 2 (feature engineering & modeling) — done.** See [`reports/model_comparison.md`](reports/model_comparison.md)
+for the full writeup. Headline, honestly reported: none of the three models is production-ready yet — the
+rule-based baseline gets 81.6% recall but flags 29% of all traffic, and Isolation Forest (unsupervised)
+outperforms the supervised Random Forest at every review-budget level, largely because there are only 141
+labeled attacks to learn from. Phase 1 data/EDA writeup: [`data/DATA.md`](data/DATA.md),
+[`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb).
+
+### Model comparison (test set, 137,164 rows / 38 labeled attacks)
+
+| Model | Precision | Recall | False positive rate |
+|---|---|---|---|
+| Baseline (rules) | 0.08% | 81.6% | 28.8% |
+| Isolation Forest | 0.0% | 0.0% | 0.11% |
+| Random Forest | 0.03% | 21.1% | 19.0% |
+
+| Recall @ review budget | 1% | 5% | 20% |
+|---|---|---|---|
+| Isolation Forest | 7.9% | 28.9% | 60.5% |
+| Random Forest | 0.0% | 0.0% | 21.1% |
 
 ## Project structure
 

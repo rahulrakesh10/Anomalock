@@ -1,0 +1,38 @@
+{
+  "results": {
+    "baseline": {
+      "precision": 0.00078383777086652,
+      "recall": 0.8157894736842105,
+      "false_positive_rate": 0.28818750638099266,
+      "true_positives": 31,
+      "false_positives": 39518,
+      "false_negatives": 7,
+      "true_negatives": 97608,
+      "flagged_count": 39549
+    },
+    "isolation_forest": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_positive_rate": 0.001072006767498505,
+      "true_positives": 0,
+      "false_positives": 147,
+      "false_negatives": 38,
+      "true_negatives": 136979,
+      "flagged_count": 147
+    },
+    "random_forest": {
+      "precision": 0.00030720786452133173,
+      "recall": 0.21052631578947367,
+      "false_positive_rate": 0.1898472937298543,
+      "true_positives": 8,
+      "false_positives": 26033,
+      "false_negatives": 30,
+      "true_negatives": 111093,
+      "flagged_count": 26041
+    }
+  },
+  "n_train": 162839,
+  "n_test": 137164,
+  "train_positives": 103,
+  "test_positives": 38
+}
