@@ -13,10 +13,11 @@ data/processed/*.csv
 !data/processed/.gitkeep
 *.zip
 
-## Models & artifacts
+## Models & artifacts (regenerate via `python -m anomalock.models.train_serving_model`)
 *.pkl
 *.joblib
 models/*.bin
+artifacts/
 
 ## Notebooks
 .ipynb_checkpoints/
@@ -24,6 +25,7 @@ models/*.bin
 ## Env / secrets
 .env
 .env.*
+!.env.example
 
 ## OS
 .DS_Store

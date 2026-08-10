@@ -7,12 +7,18 @@ verification instead of either annoying every user or missing slow, low-volume a
 
 ## Status
 
+**Phase 3 (API) — done.** FastAPI scoring service + replay tool. Verified end-to-end against a real attack
+sequence in the dataset: an account-takeover login scored 99.2/100 (flagged for unusual login time + new
+device/network), and the attacker's follow-up logins scored 99.2-99.5 on `impossible_travel`. See
+[Running the API](#running-the-api) below.
+
 **Phase 2 (feature engineering & modeling) — done.** See [`reports/model_comparison.md`](reports/model_comparison.md)
 for the full writeup. Headline, honestly reported: none of the three models is production-ready yet — the
 rule-based baseline gets 81.6% recall but flags 29% of all traffic, and Isolation Forest (unsupervised)
 outperforms the supervised Random Forest at every review-budget level, largely because there are only 141
-labeled attacks to learn from. Phase 1 data/EDA writeup: [`data/DATA.md`](data/DATA.md),
-[`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb).
+labeled attacks to learn from. The live API (below) serves Isolation Forest as the primary score, with the
+baseline rules surfaced as human-readable "flagged reasons" alongside it. Phase 1 data/EDA writeup:
+[`data/DATA.md`](data/DATA.md), [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb).
 
 ### Model comparison (test set, 137,164 rows / 38 labeled attacks)
 
@@ -55,10 +61,36 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Running the API
+
+```bash
+# 1. Postgres (local dev; formalized into docker-compose.yml in Phase 5)
+docker run -d --name anomalock-postgres \
+  -e POSTGRES_USER=anomalock -e POSTGRES_PASSWORD=anomalock_dev -e POSTGRES_DB=anomalock \
+  -p 5434:5432 postgres:16-alpine
+cp .env.example .env   # DATABASE_URL points at localhost:5434 by default
+
+# 2. Train the artifact the API serves (Isolation Forest fit on the full feature set)
+python -m anomalock.models.train_serving_model
+
+# 3. Run the API (creates tables on startup)
+python -m uvicorn api.app.main:app --reload
+
+# 4. Simulate live traffic by replaying historical events through /score
+python -m api.replay --limit 500
+```
+
+`POST /score` accepts a login event (user/timestamp/IP/geo/device/success) and returns a 0-100 risk score
+(percentile rank vs. training history), a risk level, `step_up_required`, and human-readable `flagged_reasons`
+(e.g. `impossible_travel`, `new_device_new_network`) — see [`api/app/schemas.py`](api/app/schemas.py). Features
+are computed causally from that user's (and source IP's) prior events already stored in Postgres, using the
+exact same definitions as [`src/anomalock/features/build_features.py`](src/anomalock/features/build_features.py)
+so there's no train/serve skew — see [`api/app/scoring.py`](api/app/scoring.py) for the online version.
+
 ## Roadmap
 
-1. **Data** — acquire/subsample RBA dataset, EDA
-2. **Feature engineering & modeling** — baseline rules, Isolation Forest, Random Forest, comparison report
-3. **API** — FastAPI scoring endpoint + replay tool
+1. **Data** — acquire/subsample RBA dataset, EDA ✅
+2. **Feature engineering & modeling** — baseline rules, Isolation Forest, Random Forest, comparison report ✅
+3. **API** — FastAPI scoring endpoint + replay tool ✅
 4. **Dashboard** — React + Socket.IO live risk feed with mock step-up-auth flow
 5. **Deployment & writeup** — Docker Compose, Fly.io, final README
