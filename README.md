@@ -7,6 +7,10 @@ verification instead of either annoying every user or missing slow, low-volume a
 
 ## Status
 
+**Phase 4 (dashboard) — done.** React + Socket.IO live login feed, plus a mock login form with three
+scenario presets (normal / new device / impossible travel) that shows the model's score turning into an
+actual step-up-authentication prompt. See [Running the dashboard](#running-the-dashboard) below.
+
 **Phase 3 (API) — done.** FastAPI scoring service + replay tool. Verified end-to-end against a real attack
 sequence in the dataset: an account-takeover login scored 99.2/100 (flagged for unusual login time + new
 device/network), and the attacker's follow-up logins scored 99.2-99.5 on `impossible_travel`. See
@@ -87,10 +91,25 @@ are computed causally from that user's (and source IP's) prior events already st
 exact same definitions as [`src/anomalock/features/build_features.py`](src/anomalock/features/build_features.py)
 so there's no train/serve skew — see [`api/app/scoring.py`](api/app/scoring.py) for the online version.
 
+## Running the dashboard
+
+```bash
+cd dashboard
+npm install
+cp .env.example .env   # VITE_API_URL points at localhost:8000 by default
+npm run dev
+```
+
+Open the printed localhost URL. The left panel fires scenario logins (each sends a quiet baseline "seed"
+event first, so the model has personal history to compare the real attempt against — see
+[`dashboard/src/lib/scenarios.ts`](dashboard/src/lib/scenarios.ts)); the right panel is a live feed of every
+scored login, pushed over Socket.IO from [`api/app/socket.py`](api/app/socket.py) the moment `/score` runs —
+including events from `python -m api.replay`, so replaying historical data animates the dashboard live.
+
 ## Roadmap
 
 1. **Data** — acquire/subsample RBA dataset, EDA ✅
 2. **Feature engineering & modeling** — baseline rules, Isolation Forest, Random Forest, comparison report ✅
 3. **API** — FastAPI scoring endpoint + replay tool ✅
-4. **Dashboard** — React + Socket.IO live risk feed with mock step-up-auth flow
+4. **Dashboard** — React + Socket.IO live risk feed with mock step-up-auth flow ✅
 5. **Deployment & writeup** — Docker Compose, Fly.io, final README

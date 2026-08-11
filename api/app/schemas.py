@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class LoginEventIn(BaseModel):
@@ -17,6 +17,17 @@ class LoginEventIn(BaseModel):
     os: str | None = None
     device_type: str | None = None
     login_successful: bool = True
+
+    @field_validator("login_timestamp")
+    @classmethod
+    def _to_naive_utc(cls, v: dt.datetime) -> dt.datetime:
+        """Stored/compared as naive UTC throughout, matching the RBA
+        dataset's own timestamps — a timezone-aware value from a client
+        (e.g. the dashboard's `Date.toISOString()`) would otherwise crash
+        when subtracted against the naive datetimes already in the DB."""
+        if v.tzinfo is not None:
+            v = v.astimezone(dt.timezone.utc).replace(tzinfo=None)
+        return v
 
 
 class ScoreOut(BaseModel):
