@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useState, type FC } from "react";
 import { scoreLogin } from "../lib/api";
 import { buildScenarioEvents, SCENARIOS, type ScenarioKey } from "../lib/scenarios";
 import type { ScoreOut } from "../lib/types";
+import { DeviceSwitchIcon, PlaneIcon, UserCheckIcon } from "./icons";
+import { RiskMeter } from "./RiskMeter";
+
+const SCENARIO_ICONS: Record<ScenarioKey, FC<{ className?: string }>> = {
+  normal: UserCheckIcon,
+  new_device: DeviceSwitchIcon,
+  impossible_travel: PlaneIcon,
+};
 
 export function MockLoginForm() {
   const [userId, setUserId] = useState("demo.user");
@@ -40,11 +48,20 @@ export function MockLoginForm() {
       <input id="user_id" className="text-input" value={userId} onChange={(e) => setUserId(e.target.value)} />
 
       <div className="scenario-buttons">
-        {SCENARIOS.map((s) => (
-          <button key={s.key} className="scenario-btn" disabled={loading !== null} onClick={() => runScenario(s.key)} title={s.description}>
-            {loading === s.key ? "Scoring…" : s.label}
-          </button>
-        ))}
+        {SCENARIOS.map((s) => {
+          const Icon = SCENARIO_ICONS[s.key];
+          return (
+            <button key={s.key} className="scenario-btn" disabled={loading !== null} onClick={() => runScenario(s.key)}>
+              <span className="scenario-icon">
+                <Icon />
+              </span>
+              <span className="scenario-text">
+                <span className="scenario-label">{loading === s.key ? "Scoring…" : s.label}</span>
+                <span className="scenario-desc">{s.description}</span>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {error && <div className="error-box">{error}</div>}
@@ -55,8 +72,10 @@ export function MockLoginForm() {
             <span className="risk-badge" data-level={result.risk_level}>
               {result.risk_level.toUpperCase()}
             </span>
-            <span className="risk-score">Risk score: {result.risk_score.toFixed(1)} / 100</span>
+            <span className="risk-score">{result.risk_score.toFixed(1)} / 100</span>
           </div>
+
+          <RiskMeter score={result.risk_score} level={result.risk_level} />
 
           {result.flagged_reasons.length > 0 && (
             <ul className="reasons-list">

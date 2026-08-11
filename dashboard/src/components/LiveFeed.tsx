@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { socket } from "../lib/socket";
 import type { LiveFeedEvent } from "../lib/types";
+import { PulseIcon } from "./icons";
 
 const MAX_ROWS = 100;
 
@@ -33,7 +34,10 @@ export function LiveFeed() {
     <div className="panel feed-panel">
       <div className="feed-header">
         <h2>Live login feed</h2>
-        <span className={`conn-dot ${connected ? "conn-up" : "conn-down"}`} title={connected ? "connected" : "disconnected"} />
+        <span className={`conn-pill ${connected ? "conn-up" : "conn-down"}`}>
+          <span className="conn-dot" />
+          {connected ? "Live" : "Offline"}
+        </span>
       </div>
       <p className="panel-subtitle">
         Every scored login (from the mock form, or <code>python -m api.replay</code>) appears here in real time.
@@ -54,6 +58,7 @@ export function LiveFeed() {
             {events.length === 0 && (
               <tr>
                 <td colSpan={5} className="feed-empty">
+                  <PulseIcon className="feed-empty-icon" />
                   No events yet — try a mock login or run the replay tool.
                 </td>
               </tr>
@@ -66,9 +71,14 @@ export function LiveFeed() {
                   {e.city ?? "?"}, {e.country ?? "?"}
                 </td>
                 <td>
-                  <span className="risk-badge" data-level={e.risk_level}>
-                    {e.risk_score.toFixed(0)}
-                  </span>
+                  <div className="feed-risk-cell">
+                    <span className="risk-badge" data-level={e.risk_level}>
+                      {e.risk_score.toFixed(0)}
+                    </span>
+                    <span className="feed-risk-bar-track">
+                      <span className="feed-risk-bar-fill" data-level={e.risk_level} style={{ width: `${Math.max(0, Math.min(100, e.risk_score))}%` }} />
+                    </span>
+                  </div>
                 </td>
                 <td className="feed-reasons">{e.flagged_reasons.map((r) => r.replaceAll("_", " ")).join(", ")}</td>
               </tr>
