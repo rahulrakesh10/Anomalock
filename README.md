@@ -5,7 +5,14 @@ engines used by Okta, Microsoft Entra, and Auth0. Scores each login attempt on b
 travel, brute-force patterns, new-device/off-hours logins) and flags high-risk attempts for step-up
 verification instead of either annoying every user or missing slow, low-volume attacks.
 
+**Live demo:** [rahulrakesh10.github.io/Anomalock](https://rahulrakesh10.github.io/Anomalock/) (dashboard, on
+GitHub Pages) talking to a live API at `anomalock-api.fly.dev` (Fly.io). The API scales to zero when idle, so
+the first request after a while may take a few seconds to wake up.
+
 ## Status
+
+**Phase 5 (deployment) — done.** Dashboard on GitHub Pages (static, via GitHub Actions), API + Postgres on
+Fly.io (Docker). See [Deployment](#deployment) below.
 
 **Phase 4 (dashboard) — done.** React + Socket.IO live login feed, plus a mock login form with three
 scenario presets (normal / new device / impossible travel) that shows the model's score turning into an
@@ -106,10 +113,38 @@ event first, so the model has personal history to compare the real attempt again
 scored login, pushed over Socket.IO from [`api/app/socket.py`](api/app/socket.py) the moment `/score` runs —
 including events from `python -m api.replay`, so replaying historical data animates the dashboard live.
 
+## Deployment
+
+**Local, via Docker Compose** (API + Postgres):
+
+```bash
+docker compose up --build
+# API at http://localhost:8000
+```
+
+**Production:**
+
+- **API + Postgres → Fly.io.** [`Dockerfile`](Dockerfile) builds the API image (`api/requirements.txt` is a
+  slim, serving-only dependency set); [`fly.toml`](fly.toml) configures it to scale to zero when idle
+  (`min_machines_running = 0`) to minimize cost on a portfolio project. Postgres is an unmanaged Fly Postgres
+  cluster, attached via `fly postgres attach` (which sets the `DATABASE_URL` secret automatically — note Fly
+  hands out `postgres://`, which [`api/app/db.py`](api/app/db.py) normalizes to `postgresql+psycopg2://` for
+  SQLAlchemy). The trained model artifact ([`artifacts/`](artifacts)) is committed to the repo rather than
+  regenerated at build time, since Fly's build has no access to the multi-GB raw dataset — see the note in
+  [`.gitignore`](.gitignore).
+  ```bash
+  flyctl deploy
+  ```
+- **Dashboard → GitHub Pages**, built and deployed by
+  [`.github/workflows/deploy-dashboard.yml`](.github/workflows/deploy-dashboard.yml) on every push to
+  `dashboard/`. The build reads the deployed API's URL from the `VITE_API_URL` repo variable
+  (`gh variable set VITE_API_URL --body https://anomalock-api.fly.dev`); `vite.config.ts` sets `base:
+  '/Anomalock/'` to match GitHub's project-pages path.
+
 ## Roadmap
 
 1. **Data** — acquire/subsample RBA dataset, EDA ✅
 2. **Feature engineering & modeling** — baseline rules, Isolation Forest, Random Forest, comparison report ✅
 3. **API** — FastAPI scoring endpoint + replay tool ✅
 4. **Dashboard** — React + Socket.IO live risk feed with mock step-up-auth flow ✅
-5. **Deployment & writeup** — Docker Compose, Fly.io, final README
+5. **Deployment & writeup** — Docker Compose, Fly.io, final README ✅

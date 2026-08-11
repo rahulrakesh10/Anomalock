@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: anomalock
+      POSTGRES_PASSWORD: anomalock_dev
+      POSTGRES_DB: anomalock
+    ports:
+      - "5434:5432"
+    volumes:
+      - anomalock-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anomalock"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://anomalock:anomalock_dev@postgres:5432/anomalock
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  anomalock-pgdata:

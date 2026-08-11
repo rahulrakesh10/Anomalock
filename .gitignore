@@ -13,11 +13,13 @@ data/processed/*.csv
 !data/processed/.gitkeep
 *.zip
 
-## Models & artifacts (regenerate via `python -m anomalock.models.train_serving_model`)
+## Models & artifacts
+## artifacts/ (isolation_forest.joblib + model_meta.json) IS committed on
+## purpose: it's small (~2MB) and Fly.io's Docker build has no access to
+## the multi-GB raw dataset needed to regenerate it. Regenerate locally
+## via `python -m anomalock.models.train_serving_model` if it goes stale.
 *.pkl
-*.joblib
 models/*.bin
-artifacts/
 
 ## Notebooks
 .ipynb_checkpoints/

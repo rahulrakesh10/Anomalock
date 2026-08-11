@@ -17,6 +17,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+import pandas as pd
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -63,7 +64,7 @@ class Scorer:
 
         features = self._compute_features(event, prior, db)
 
-        x = np.array([[features[c] for c in self.feature_columns]])
+        x = pd.DataFrame([{c: features[c] for c in self.feature_columns}])
         raw_score = float(-self.model.decision_function(x)[0])
         risk_score = self._normalize_score(raw_score)
 
