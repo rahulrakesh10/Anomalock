@@ -1,13 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { runDemo } from "../lib/demo";
 import { socket } from "../lib/socket";
 import type { LiveFeedEvent } from "../lib/types";
-import { PulseIcon } from "./icons";
+import { PlayIcon, PulseIcon } from "./icons";
 
 const MAX_ROWS = 100;
 
+interface Row extends LiveFeedEvent {
+  _id: number;
+}
+
+let nextRowId = 0;
+
 export function LiveFeed() {
-  const [events, setEvents] = useState<LiveFeedEvent[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [connected, setConnected] = useState(socket.connected);
+  const [demoRunning, setDemoRunning] = useState(false);
+  const cancelRef = useRef({ cancelled: false });
 
   useEffect(() => {
     function onConnect() {
@@ -17,7 +26,7 @@ export function LiveFeed() {
       setConnected(false);
     }
     function onLoginScored(payload: LiveFeedEvent) {
-      setEvents((prev) => [payload, ...prev].slice(0, MAX_ROWS));
+      setRows((prev) => [{ ...payload, _id: nextRowId++ }, ...prev].slice(0, MAX_ROWS));
     }
 
     socket.on("connect", onConnect);
@@ -30,17 +39,42 @@ export function LiveFeed() {
     };
   }, []);
 
+  useEffect(() => {
+    const signal = cancelRef.current;
+    signal.cancelled = false;
+    const t = setTimeout(() => void startDemo(), 500);
+    return () => {
+      clearTimeout(t);
+      signal.cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function startDemo() {
+    cancelRef.current.cancelled = false;
+    setDemoRunning(true);
+    await runDemo(cancelRef.current);
+    setDemoRunning(false);
+  }
+
   return (
     <div className="panel feed-panel">
       <div className="feed-header">
         <h2>Live login feed</h2>
-        <span className={`conn-pill ${connected ? "conn-up" : "conn-down"}`}>
-          <span className="conn-dot" />
-          {connected ? "Live" : "Offline"}
-        </span>
+        <div className="feed-header-actions">
+          <button className="replay-btn" onClick={startDemo} disabled={demoRunning}>
+            <PlayIcon className="replay-icon" />
+            {demoRunning ? "Replaying…" : "Replay demo"}
+          </button>
+          <span className={`conn-pill ${connected ? "conn-up" : "conn-down"}`}>
+            <span className="conn-dot" />
+            {connected ? "Live" : "Offline"}
+          </span>
+        </div>
       </div>
       <p className="panel-subtitle">
-        Every scored login (from the mock form, or <code>python -m api.replay</code>) appears here in real time.
+        Scripted demo traffic plays on load, plus anything from the mock form or{" "}
+        <code>python -m api.replay</code> — all scored by the real model in real time.
       </p>
 
       <div className="feed-table-wrap">
@@ -55,16 +89,16 @@ export function LiveFeed() {
             </tr>
           </thead>
           <tbody>
-            {events.length === 0 && (
+            {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="feed-empty">
                   <PulseIcon className="feed-empty-icon" />
-                  No events yet — try a mock login or run the replay tool.
+                  Waking up the demo feed…
                 </td>
               </tr>
             )}
-            {events.map((e, i) => (
-              <tr key={i} className={`feed-row feed-row-${e.risk_level}`}>
+            {rows.map((e) => (
+              <tr key={e._id} className={`feed-row feed-row-${e.risk_level} feed-row-new`}>
                 <td>{new Date(e.login_timestamp).toLocaleTimeString()}</td>
                 <td className="feed-user">{e.user_id}</td>
                 <td>
@@ -76,7 +110,11 @@ export function LiveFeed() {
                       {e.risk_score.toFixed(0)}
                     </span>
                     <span className="feed-risk-bar-track">
-                      <span className="feed-risk-bar-fill" data-level={e.risk_level} style={{ width: `${Math.max(0, Math.min(100, e.risk_score))}%` }} />
+                      <span
+                        className="feed-risk-bar-fill"
+                        data-level={e.risk_level}
+                        style={{ width: `${Math.max(0, Math.min(100, e.risk_score))}%` }}
+                      />
                     </span>
                   </div>
                 </td>

@@ -606,3 +606,204 @@ code {
   color: var(--text-faint);
   opacity: 0.6;
 }
+
+.feed-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.replay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg-raised);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.replay-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.replay-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.replay-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    background: var(--accent-soft);
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.feed-row-new {
+  animation: row-in 0.5s ease;
+}
+
+/* ---------- Layout: right column ---------- */
+
+.app-main-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ---------- Analytics panel ---------- */
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.panel-title-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.panel-title-row h2 {
+  margin: 0;
+}
+
+.spark-wrap {
+  margin: 4px 0 18px;
+  padding: 14px 4px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sparkline {
+  width: 100%;
+  height: 72px;
+  display: block;
+  overflow: visible;
+}
+
+.spark-area {
+  fill: var(--accent-soft);
+  stroke: none;
+}
+
+.spark-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-empty {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  padding: 0 20px;
+}
+
+.dist-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.dist-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.dist-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--border-soft);
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dist-count {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  text-align: right;
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.footer-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stack-chip {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.footer-links {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.footer-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+.footer-sep {
+  margin: 0 8px;
+}

@@ -54,3 +54,22 @@ export function PulseIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function ChartIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 20V10" />
+      <path d="M11 20V4" />
+      <path d="M18 20v-7" />
+      <path d="M2 20h20" />
+    </svg>
+  );
+}
+
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} fill="currentColor" stroke="none">
+      <path d="M6 4.5v15l13-7.5-13-7.5z" />
+    </svg>
+  );
+}

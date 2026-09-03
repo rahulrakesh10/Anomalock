@@ -1,7 +1,10 @@
+import { AnalyticsPanel } from "./components/AnalyticsPanel";
 import { LiveFeed } from "./components/LiveFeed";
 import { MockLoginForm } from "./components/MockLoginForm";
 import { StatsBar } from "./components/StatsBar";
 import { ShieldIcon } from "./components/icons";
+
+const STACK = ["Python", "scikit-learn", "FastAPI", "PostgreSQL", "React", "Socket.IO", "Docker", "Fly.io"];
 
 export default function App() {
   return (
@@ -20,8 +23,29 @@ export default function App() {
       </header>
       <main className="app-main">
         <MockLoginForm />
-        <LiveFeed />
+        <div className="app-main-right">
+          <AnalyticsPanel />
+          <LiveFeed />
+        </div>
       </main>
+      <footer className="app-footer">
+        <div className="footer-stack">
+          {STACK.map((s) => (
+            <span className="stack-chip" key={s}>
+              {s}
+            </span>
+          ))}
+        </div>
+        <div className="footer-links">
+          <a href="https://github.com/rahulrakesh10/Anomalock" target="_blank" rel="noreferrer">
+            Source on GitHub
+          </a>
+          <span className="footer-sep">·</span>
+          <a href="https://github.com/rahulrakesh10/Anomalock/blob/main/reports/model_comparison.md" target="_blank" rel="noreferrer">
+            Model comparison report
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
