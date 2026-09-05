@@ -51,7 +51,13 @@ export function MockLoginForm() {
         {SCENARIOS.map((s) => {
           const Icon = SCENARIO_ICONS[s.key];
           return (
-            <button key={s.key} className="scenario-btn" disabled={loading !== null} onClick={() => runScenario(s.key)}>
+            <button
+              key={s.key}
+              className="scenario-btn"
+              data-scenario={s.key}
+              disabled={loading !== null}
+              onClick={() => runScenario(s.key)}
+            >
               <span className="scenario-icon">
                 <Icon />
               </span>

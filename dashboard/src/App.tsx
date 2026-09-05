@@ -19,7 +19,13 @@ export default function App() {
             <p>ML-based login risk &amp; anomaly detection — live scoring dashboard</p>
           </div>
         </div>
-        <StatsBar />
+        <div className="header-right">
+          <div className="sys-status">
+            <span className="sys-status-dot" />
+            Model: Isolation Forest · Live
+          </div>
+          <StatsBar />
+        </div>
       </header>
       <main className="app-main">
         <MockLoginForm />
